@@ -3,10 +3,17 @@ project(sensor_calib)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
+set(CMAKE_CXX_FLAGS "-std=c++11")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(Eigen3 REQUIRED)
+if (EIGEN3_FOUND) 
+  message(STATUS "Eigen3 found! Eigen3_include_dir : \" ${EIGEN3_INCLUDE_DIR} \"")
+endif(EIGEN3_FOUND)
+
+find_package(catkin REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   nav_msgs
@@ -15,6 +22,31 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+)
+
+set(UTILS_SRC
+  src/utils/io.cc
+)
+
+catkin_package(
+  INCLUDE_DIRS 
+  include
+#  LIBRARIES sensor_calib
+#  CATKIN_DEPENDS message_generation nav_msgs pcl_conversions pcl_ros roscpp rospy std_msgs
+#  DEPENDS system_lib
+)
+
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+)
+
+
+add_executable(lidar_odom_2d_calibrator src/lidar_odom_2d_calibrator.cpp ${UTILS_SRC})
+target_link_libraries( lidar_odom_2d_calibrator
+  ${catkin_LIBRARIES}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 ## System dependencies are found with CMake's conventions
@@ -106,12 +138,16 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES sensor_calib
-#  CATKIN_DEPENDS message_generation nav_msgs pcl_conversions pcl_ros roscpp rospy std_msgs
-#  DEPENDS system_lib
-)
+# catkin_package(
+# #  INCLUDE_DIRS include
+# #  LIBRARIES sensor_calib
+# #  CATKIN_DEPENDS message_generation nav_msgs pcl_conversions pcl_ros roscpp rospy std_msgs
+# #  DEPENDS system_lib
+# )
+# include_directories(
+# # include
+#   ${catkin_INCLUDE_DIRS}
+# )
 
 ###########
 ## Build ##
@@ -119,10 +155,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+# include_directories(
+# # include
+#   ${catkin_INCLUDE_DIRS}
+# )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
